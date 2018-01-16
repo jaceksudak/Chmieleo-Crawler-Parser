@@ -32,17 +32,6 @@ public class Hop extends Item {
     private double alphaAcids;
 
 
-                public Hop(int id, String variety, String countryShort, int netWeight, String description,
-                           String manufacturer, int harvestYear, HopForm HopForm, Purpose Purpose, double alphaAcids, double currentPrice, boolean currentAvailability) {
-                    super(id, CATEGORY_ID,
-                            ("Chmiel " + variety + " " + netWeight + "g - " + countryShort + " - " + HopForm + " " + harvestYear),
-                            variety, countryShort, netWeight, description, manufacturer, currentPrice, currentAvailability);
-                    this.harvestYear = harvestYear;
-                    this.hopForm = HopForm;
-                    this.purpose = Purpose;
-                    this.alphaAcids = alphaAcids;
-                }
-
     private Hop(HopBuilder hopBuilder) {
         super(hopBuilder);
         this.harvestYear = hopBuilder.harvestYear;

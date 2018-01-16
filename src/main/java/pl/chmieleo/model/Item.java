@@ -16,18 +16,6 @@ public abstract class Item {
     private boolean currentAvailability;
     private String uri;
 
-                    public Item(int id, int categoryId, String name, String variety, String country, int netWeight, String description, String manufacturer, double currentPrice, boolean currentAvailability) {
-                        this.categoryId = categoryId;
-                        this.name = name;
-                        this.variety = variety;
-                        this.country = country;
-                        this.netWeight = netWeight;
-                        this.description = description;
-                        this.manufacturer = manufacturer;
-                        this.currentPrice = currentPrice;
-                        this.currentAvailability = currentAvailability;
-                    }
-
     Item(Builder builder) {
         this.valid = builder.valid;
         this.categoryId = builder.categoryId;

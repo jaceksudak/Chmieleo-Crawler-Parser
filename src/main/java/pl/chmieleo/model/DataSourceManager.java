@@ -15,12 +15,6 @@ public class DataSourceManager {
         if(INSTANCE == null) {
             synchronized (DataSourceManager.class) {
                 if(INSTANCE == null) {
-//                    MysqlDataSource mysqlDS = new MysqlDataSource();
-//                    mysqlDS.setURL("jdbc:mysql://localhost:3306/chmieleo_items");
-//                    mysqlDS.setUser("root");
-//                    mysqlDS.setPassword("iluvatar");
-//
-//                    INSTANCE = mysqlDS;
                     INSTANCE = loadDataSource();
                 }
             }

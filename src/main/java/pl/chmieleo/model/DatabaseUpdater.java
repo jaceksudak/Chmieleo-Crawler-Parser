@@ -203,42 +203,4 @@ public class DatabaseUpdater {
             }
         }
     }
-
-
-
-
-
-    public static void main(String[] args) {
-
-        Item item = new Hop(125, "Marynka",
-                "PL", 80, "21asldkas;1ldka;lsdk asd;lk asd ;las", "Moja fa1231bryka",
-                2015, Hop.HopForm.PELLET, Hop.Purpose.AROMA, 8.2, 16.00, true);
-        Shop shop = new Shop(2, "Esencje", "hhttpp:/costam", null);
-        DatabaseUpdater dbu = new DatabaseUpdater(DataSourceManager.getDataSource());
-
-        Item item3 = new Hop.HopBuilder().harvestYear(2156).categoryId(3).country("kjkjl").harvestYear(3121).purpose(Hop.Purpose.AROMA).currentPrice(12.0).alphaAcids(23).country("PL").hopForm(Hop.HopForm.PELLET).build();
-
-
-        try {
-            dbu.addOrUpdateItem((Hop)item,2,"/.,/.lk;lxkcv");
-            dbu.addOrUpdateItem((Hop)item3,2,"/.,/.lk;lxkcv");
-//            int x = dbu.getOrAddCountry(item);
-//            System.out.println(x);
-//            int y = dbu.getOrAddItemToShop(item, shop, "asdasd");
-//            System.out.println(y);
-//            System.out.println(dbu.getOrAddItemState(item, y));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        System.out.println(item);
-//        try {
-//            if(dbu.dataSource.getConnection().isValid(1000))
-//                System.out.println("Spoko");
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        Statement statement = dbu.dataSource.getConnection().createStatement();
-//        statement.
-
-    }
 }
