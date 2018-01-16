@@ -120,8 +120,6 @@ public abstract class BaseShopParser {
 
     protected abstract void parseItemPrice(Document doc, Item.Builder<?> builder);
 
-    protected abstract void parseItemURI(String itemURL, Item.Builder<?> builder);
-
     protected abstract void parseItemImage(Document doc, Item.Builder<?> builder);
 
 
@@ -152,6 +150,10 @@ public abstract class BaseShopParser {
     protected void parseHopPurposeHook(Document doc, Hop.HopBuilder hopBuilder) {}
 
     protected void parseHopAlphaAcidsHook(Document doc, Hop.HopBuilder hopBuilder) {}
+
+    private void parseItemURI(String itemURL, Item.Builder<?> builder) {
+        builder.uri(itemURL.replace(baseURI, ""));
+    }
 
     private void checkIfValidHop(Hop.HopBuilder hopBuilder) {
         checkIfItemValid(hopBuilder);
@@ -223,7 +225,7 @@ public abstract class BaseShopParser {
         return doc;
     }
 
-    private List<String> getAllInCategoryItemsUrls(String categoryUri, int limit) {
+    protected List<String> getAllInCategoryItemsUrls(String categoryUri, int limit) {
         int pageNumber = 1;
         List<String> allHopsUrls = new ArrayList<>();
         List<String> firstPageList = getUrlsFromSinglePage(baseURI + categoryUri + 1);
@@ -237,7 +239,7 @@ public abstract class BaseShopParser {
         return allHopsUrls;
     }
 
-    private List<String> getUrlsFromSinglePage(String url) {
+    protected List<String> getUrlsFromSinglePage(String url) {
         Document doc = fetchDocument(url);
         List<String> itemsUrls = new ArrayList<>();
         if(doc == null) {
@@ -245,7 +247,14 @@ public abstract class BaseShopParser {
         }
         Elements elements = doc.select(itemFromListURLSelector);
         for(Element element : elements) {
-            itemsUrls.add(element.attr(itemFromListURLAttribute));
+            if(element.attr(itemFromListURLAttribute).contains(baseURI)) {
+                itemsUrls.add(element.attr(itemFromListURLAttribute));
+            } else {
+                StringBuilder sb = new StringBuilder(baseURI);
+                sb.deleteCharAt(sb.lastIndexOf("/"));
+                sb.append(element.attr(itemFromListURLAttribute));
+                itemsUrls.add(sb.toString());
+            }
         }
         return itemsUrls;
     }

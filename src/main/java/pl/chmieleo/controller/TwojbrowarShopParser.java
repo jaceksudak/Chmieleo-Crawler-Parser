@@ -60,11 +60,6 @@ public class TwojbrowarShopParser extends  BaseShopParser {
     }
 
     @Override
-    protected void parseItemURI(String itemURL, Item.Builder<?> builder) {
-        builder.uri(itemURL.replace(baseURI, ""));
-    }
-
-    @Override
     protected void parseItemPrice(Document doc, Item.Builder<?> builder) {
         Element priceElem = doc.selectFirst(ITEM_PRICE_SELECTOR);
         if(priceElem != null) {
@@ -109,7 +104,17 @@ public class TwojbrowarShopParser extends  BaseShopParser {
         if(variety.length() == 0) {
             return false;
         } else {
-            hopBuilder.variety(variety.toString().trim());
+            if( (variety.toString().contains("Tomahawk")) ||
+            (variety.toString().contains("Zeus")) ||
+            (variety.toString().contains("Columbus")) ||
+            (variety.toString().contains("CTZ")) ){
+                hopBuilder.variety("CTZ");
+            } else {
+                hopBuilder.variety(variety.toString()
+                        .replaceAll("[^a-zA-Z0-9]","")
+                        .replaceAll("(hop)|(blend)","")
+                        .trim());
+            }
             return true;
         }
     }

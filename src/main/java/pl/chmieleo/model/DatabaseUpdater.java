@@ -15,7 +15,7 @@ public class DatabaseUpdater {
             " INNER JOIN " +DBStructure.TABLE_ITEMS + " ON " +DBStructure.TABLE_HOPS + "." +DBStructure.COLUMN_HOPS_ID + " = " +DBStructure.TABLE_ITEMS + "." +DBStructure.COLUMN_ITEMS_ID +
             " WHERE " +DBStructure.COLUMN_HOPS_HARVEST_YEAR + " = ? AND " +DBStructure.COLUMN_HOPS_FORM + " = ? AND " +
            DBStructure.COLUMN_ITEMS_VARIETY + " = ? AND " +DBStructure.COLUMN_ITEMS_COUNTRY_ID + " = ? AND " +DBStructure.COLUMN_ITEMS_NET_WEIGHT +
-            " = ? ORDER BY " +DBStructure.COLUMN_ITEMS_IN_SHOPS_ID + " DESC LIMIT 1";
+            " = ? ORDER BY " +DBStructure.COLUMN_ITEMS_ID + " DESC LIMIT 1";
     private static final String INSERT_ITEM = "INSERT INTO " +DBStructure.TABLE_ITEMS + "(" +
            DBStructure.COLUMN_ITEMS_CATEGORY_ID + ", " +DBStructure.COLUMN_ITEMS_ITEM_NAME + ", " +DBStructure.COLUMN_ITEMS_VARIETY + ", " +DBStructure.COLUMN_ITEMS_COUNTRY_ID + ", " +
            DBStructure.COLUMN_ITEMS_NET_WEIGHT + ", " +DBStructure.COLUMN_ITEMS_DESCRIPTION + ", " +DBStructure.COLUMN_ITEMS_MANUFACTURER +
