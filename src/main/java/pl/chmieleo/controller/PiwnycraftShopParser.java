@@ -97,6 +97,7 @@ public class PiwnycraftShopParser extends BaseShopParser {
         return allHopsUrls;
     }
 
+
     @Override
     protected void parseItemImage(Document doc, Item.Builder<?> builder) {
         builder.image(HOP_IMAGE_IN_SERVER_PATH);
@@ -105,6 +106,8 @@ public class PiwnycraftShopParser extends BaseShopParser {
     @Override
     protected boolean parseHopVariety(Document doc, Hop.HopBuilder hopBuilder) {
         String title = parseItemTitle(doc);
+        if( checkExtremeBoundaryConditions(title, hopBuilder) )
+            return true;
         String[] titleParts = ITEM_WEIGHT_PATTERN.split(title);
         if( !titleParts[0].isEmpty() ) {
             String[] titleSmallerParts = titleParts[0].trim().split(" ");

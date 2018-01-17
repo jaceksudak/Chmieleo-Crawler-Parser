@@ -60,6 +60,21 @@ public class TwojbrowarShopParser extends  BaseShopParser {
     }
 
     @Override
+    protected List<String> getAllInCategoryItemsUrls(String categoryUri, int limit) {
+        int pageNumber = 1;
+        List<String> allHopsUrls = new ArrayList<>();
+        List<String> firstPageList = getUrlsFromSinglePage(baseURI + categoryUri + 1);
+        List<String> currentPageList = firstPageList;
+        do {
+            allHopsUrls.addAll(currentPageList);
+            pageNumber++;
+            currentPageList = getUrlsFromSinglePage(baseURI + categoryUri + pageNumber);
+        } while ( ! currentPageList.equals(firstPageList) &&
+                pageNumber <= limit );
+        return allHopsUrls;
+    }
+
+    @Override
     protected void parseItemPrice(Document doc, Item.Builder<?> builder) {
         Element priceElem = doc.selectFirst(ITEM_PRICE_SELECTOR);
         if(priceElem != null) {
@@ -85,39 +100,41 @@ public class TwojbrowarShopParser extends  BaseShopParser {
             e.printStackTrace();
         }
     }
-
+//"А а \tБ б \tВ в \tГ г \tҐ ґ \tД д \tЕ е \tЄ є \tЖ ж \tЗ з \tИ и\n"+
+//        "І і \tЇ ї \tЙ й \tК к \tЛ л \tМ м \tН н \tО о \tП п \tР р \tС с\n"+
+//        "Т т \tУ у \tФ ф \tХ х \tЦ ц \tЧ ч \tШ ш \tЩ щ \tЬ ь \tЮ ю \tЯ я"
     @Override
     protected boolean parseHopVariety(Document doc, Hop.HopBuilder hopBuilder) {
-        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleString(doc)));
+        String title = getTitleString(doc);
+        if(title == null) {
+            return false;
+        }
+        if( checkExtremeBoundaryConditions(title, hopBuilder) ) {
+            return true;
+        }
+        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleStringArr(doc)));
         removeRedundantFromHopTitle(titleParts.iterator(), hopBuilder);
         StringBuilder variety = new StringBuilder();
         for (String s : titleParts) {
-            if (HOP_HARVEST_YEAR_PATTERN.matcher(s).matches() ||
-                    COUNTRY_SHORT_NAME_LIST.indexOf(s) != -1 ||
+            if ( COUNTRY_SHORT_NAME_LIST.indexOf(s) != -1 ||
                     COUNTRY_LONG_NAME_LIST.indexOf(s) != -1 ||
                     ITEM_WEIGHT_PATTERN.matcher(s).matches()) {
                 break;
             } else {
+                s = s.substring(0,1).toUpperCase() + s.substring(1);
                 variety.append(s).append(" ");
             }
         }
         if(variety.length() == 0) {
             return false;
         } else {
-            if( (variety.toString().contains("Tomahawk")) ||
-            (variety.toString().contains("Zeus")) ||
-            (variety.toString().contains("Columbus")) ||
-            (variety.toString().contains("CTZ")) ){
-                hopBuilder.variety("CTZ");
-            } else {
-                hopBuilder.variety(variety.toString()
-                        .replaceAll("[^a-zA-Z0-9]","")
-                        .replaceAll("(hop)|(blend)","")
-                        .trim());
-            }
+            hopBuilder.variety( variety.toString()
+                    .replaceAll("[\\u2122\\u00AE!]","")
+                    .trim() );
             return true;
         }
     }
+
 
     @Override
     protected boolean parseHopCountry(Document doc, Hop.HopBuilder hopBuilder) {
@@ -138,7 +155,7 @@ public class TwojbrowarShopParser extends  BaseShopParser {
 
     @Override
     protected void parseHopCountryAltHook(Document doc, Hop.HopBuilder hopBuilder) {
-        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleString(doc)));
+        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleStringArr(doc)));
         for (String s : titleParts) {
             if (COUNTRY_SHORT_NAME_LIST.indexOf(s) != -1) {
                 hopBuilder.country(COUNTRY_SHORT_NAME_LIST.get(COUNTRY_SHORT_NAME_LIST.indexOf(s)));
@@ -162,7 +179,7 @@ public class TwojbrowarShopParser extends  BaseShopParser {
 
     @Override
     protected void parseHopNetWeightAltHook(Document doc, Hop.HopBuilder hopBuilder) {
-        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleString(doc)));
+        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleStringArr(doc)));
         for (String s : titleParts) {
             if (ITEM_WEIGHT_PATTERN.matcher(s).matches()) {
                 hopBuilder.netWeight(parseWeightFromPattern(s));
@@ -209,7 +226,7 @@ public class TwojbrowarShopParser extends  BaseShopParser {
 
     @Override
     protected void parseHopHarvestYearAltHook(Document doc, Hop.HopBuilder hopBuilder) {
-        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleString(doc)));
+        List<String> titleParts = new ArrayList<>(Arrays.asList(getTitleStringArr(doc)));
         for (String s : titleParts) {
             if (HOP_HARVEST_YEAR_PATTERN.matcher(s).matches()) {
                 hopBuilder.harvestYear(Integer.parseInt(s));
@@ -254,10 +271,17 @@ public class TwojbrowarShopParser extends  BaseShopParser {
                 .map( s -> Character.toUpperCase(s.text().charAt(0)) + s.text().substring(1).toLowerCase() );
     }
 
-    private String[] getTitleString(Document doc) {
+    private String[] getTitleStringArr(Document doc) {
         Element titleElem = doc.selectFirst(ITEM_TITLE_SELECTOR);
         if(titleElem == null)
             return new String[]{""};
         return titleElem.text().split(" ");
+    }
+
+    private String getTitleString(Document doc) {
+        Element titleElem = doc.selectFirst(ITEM_TITLE_SELECTOR);
+        if(titleElem == null)
+            return null;
+        return titleElem.text();
     }
 }

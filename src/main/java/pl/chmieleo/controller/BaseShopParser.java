@@ -77,6 +77,10 @@ public abstract class BaseShopParser {
         if( categoryUri.equals(hopListURI) ) {
             stream = allItemsUrls.stream()
                     .map(url -> (Item)parseHop(url))
+//                    .peek(item -> {
+//                        if( !item.isValid())
+//                            System.out.println("not valid " + item);
+//                    })
                     .filter(Item::isValid);
         }
         /*else if ( categoryUri.equals(yeastURI) ) {
@@ -112,9 +116,11 @@ public abstract class BaseShopParser {
         parseHopPurposeHook(doc, hopBuilder);
         parseHopAlphaAcidsHook(doc, hopBuilder);
 
-        checkIfValidHop(hopBuilder);
+        checkHopIfValid(hopBuilder);
         return hopBuilder.build();
     }
+
+    protected abstract List<String> getAllInCategoryItemsUrls(String categoryUri, int limit);
 
     protected abstract void parseItemAvailability(Document doc, Item.Builder<?> builder);
 
@@ -155,8 +161,28 @@ public abstract class BaseShopParser {
         builder.uri(itemURL.replace(baseURI, ""));
     }
 
-    private void checkIfValidHop(Hop.HopBuilder hopBuilder) {
-        checkIfItemValid(hopBuilder);
+    protected boolean checkExtremeBoundaryConditions(String title, Hop.HopBuilder hopBuilder) {
+        if( (title.toLowerCase().contains("tomahawk")) ||
+                (title.toLowerCase().contains("zeus")) ||
+                (title.toLowerCase().contains("columbus")) ||
+                (title.toLowerCase().contains("ctz")) ) {
+            hopBuilder.variety("CTZ");
+            return true;
+        } else if( (title.toLowerCase().contains("saaz")) ||
+                (title.toLowerCase().contains("zatecky")) ||
+                (title.toLowerCase().contains("zatecki")) ||
+                (title.toLowerCase().contains("żatecki")) ) {
+            hopBuilder.variety("Saaz");
+            return true;
+        } else if( (title.toLowerCase().contains("tnt")) ) {
+            hopBuilder.variety("TNT");
+            return true;
+        } else
+            return false;
+    }
+
+    private void checkHopIfValid(Hop.HopBuilder hopBuilder) {
+        checkItemIfValid(hopBuilder);
         if( hopBuilder.getCountry().equals("ND") ||
                 hopBuilder.getNetWeight() == 0 ||
                 hopBuilder.getHarvestYear() == 0 ||
@@ -166,7 +192,7 @@ public abstract class BaseShopParser {
         }
     }
 
-    private void checkIfItemValid(Item.Builder<?> itemBuilder) {
+    private void checkItemIfValid(Item.Builder<?> itemBuilder) {
         if( itemBuilder.getVariety().equals("missing") ||
                 itemBuilder.getImage().equals("missing") ||
                 itemBuilder.getCurrentPrice() == 0.0 ||
@@ -182,16 +208,11 @@ public abstract class BaseShopParser {
             switch (s.toLowerCase()) {
                 case "szyszka":
                 case "szyszki":
-                    builder.hopForm(Hop.HopForm.WHOLELEAF);
-                    iterator.remove();
-                    break;
                 case "granulat":
                 case "pellet":
-                    builder.hopForm(Hop.HopForm.PELLET);
-                    iterator.remove();
-                    break;
                 case "chmiel":
                 case "promocja":
+                case "promocja!":
                 case "wyprzedaż":
                 case "wyprzedaż!":
                     iterator.remove();
@@ -225,19 +246,6 @@ public abstract class BaseShopParser {
         return doc;
     }
 
-    protected List<String> getAllInCategoryItemsUrls(String categoryUri, int limit) {
-        int pageNumber = 1;
-        List<String> allHopsUrls = new ArrayList<>();
-        List<String> firstPageList = getUrlsFromSinglePage(baseURI + categoryUri + 1);
-        List<String> currentPageList = firstPageList;
-        do {
-            allHopsUrls.addAll(currentPageList);
-            pageNumber++;
-            currentPageList = getUrlsFromSinglePage(baseURI + categoryUri + pageNumber);
-        } while ( ! currentPageList.equals(firstPageList) &&
-                pageNumber <= limit );
-        return allHopsUrls;
-    }
 
     protected List<String> getUrlsFromSinglePage(String url) {
         Document doc = fetchDocument(url);
